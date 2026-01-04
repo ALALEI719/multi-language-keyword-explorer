@@ -45,10 +45,21 @@ elif st.session_state["authentication_status"] is True:
     if 'interface_lang' not in st.session_state:
         st.session_state.interface_lang = "Chinese"
     
+    # 确定用户角色（基于用户名）
+    username = st.session_state.get("username", "")
+    user_role = "VIP" if username == "admin" else "Free"
+    
     # 侧边栏配置
     with st.sidebar:
         # 欢迎消息和登出按钮
         st.write(f'Welcome *{st.session_state["name"]}*')
+        
+        # 显示当前计划
+        if user_role == "VIP":
+            st.markdown('**Current Plan:** <span style="color: green;">VIP</span>', unsafe_allow_html=True)
+        else:
+            st.markdown('**Current Plan:** <span style="color: gray;">Free</span>', unsafe_allow_html=True)
+        
         authenticator.logout('Logout', 'sidebar')
         st.markdown("---")
         
@@ -86,11 +97,15 @@ elif st.session_state["authentication_status"] is True:
         available_markets = list(MARKET_CONFIG.keys())
         default_markets = ["Germany", "United States"] if "Germany" in available_markets and "United States" in available_markets else available_markets[:2] if len(available_markets) >= 2 else available_markets
         
+        # Free用户默认只选1个国家
+        if user_role == "Free" and len(default_markets) > 1:
+            default_markets = default_markets[:1]
+        
         selected_markets = st.multiselect(
             t["select_markets_label"],
             options=available_markets,
             default=default_markets,
-            help=t["select_markets_help"]
+            help=t["select_markets_help"] + (" (Free plan: max 1 country)" if user_role == "Free" else "")
         )
         
         st.markdown("---")
@@ -128,6 +143,8 @@ elif st.session_state["authentication_status"] is True:
             st.error(t["error_no_keyword"])
         elif not selected_markets:
             st.error(t["error_no_market"])
+        elif user_role == "Free" and len(selected_markets) > 1:
+            st.error("Free plan allows only 1 country. Please upgrade!")
         else:
             # 初始化结果列表
             all_results = []
@@ -236,17 +253,20 @@ elif st.session_state["authentication_status"] is True:
                     # 显示统计信息
                     st.markdown(t["total_stats"].format(count=len(df), markets=len(selected_markets)))
                     
-                    # 添加下载按钮
-                    csv = df.to_csv(index=False).encode('utf-8-sig')
-                    countries_str = "_".join(selected_markets[:3])  # 限制文件名长度
-                    if len(selected_markets) > 3:
-                        countries_str += f"_and_{len(selected_markets)-3}_more"
-                    st.download_button(
-                        label=t["download_btn"],
-                        data=csv,
-                        file_name=f"{seed_keyword}_{countries_str}_keywords.csv",
-                        mime="text/csv"
-                    )
+                    # 添加下载按钮（仅VIP用户可用）
+                    if user_role == "VIP":
+                        csv = df.to_csv(index=False).encode('utf-8-sig')
+                        countries_str = "_".join(selected_markets[:3])  # 限制文件名长度
+                        if len(selected_markets) > 3:
+                            countries_str += f"_and_{len(selected_markets)-3}_more"
+                        st.download_button(
+                            label=t["download_btn"],
+                            data=csv,
+                            file_name=f"{seed_keyword}_{countries_str}_keywords.csv",
+                            mime="text/csv"
+                        )
+                    else:
+                        st.info("💡 Upgrade to Pro to export data.")
                 else:
                     st.warning(t["warning_no_keywords"])
                 

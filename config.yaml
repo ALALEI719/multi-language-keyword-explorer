@@ -4,6 +4,10 @@ credentials:
       email: admin@95ai.com
       name: admin
       password: "$2b$12$CYqiZivs5OC5ydxNlDPzA.wEQuOGFylbet0iPTaHiHSO10qSczq.W" # This is hash for 'abc12345'
+    test_user:
+      email: test@95ai.com
+      name: test_user
+      password: "$2b$12$CYqiZivs5OC5ydxNlDPzA.wEQuOGFylbet0iPTaHiHSO10qSczq.W"  # 直接复制 admin 的那个密码，方便测试，或者用 abc12345 的旧 hash
     vip_user:
       email: vip@client.com
       name: VIP Client
