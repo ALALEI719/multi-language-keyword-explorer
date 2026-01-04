@@ -1,0 +1,17 @@
+credentials:
+  usernames:
+    admin:
+      email: admin@95ai.com
+      name: admin
+      password: "$2b$12$CYqiZivs5OC5ydxNlDPzA.wEQuOGFylbet0iPTaHiHSO10qSczq.W" # This is hash for 'abc12345'
+    vip_user:
+      email: vip@client.com
+      name: VIP Client
+      password: "$2b$12$CYqiZivs5OC5ydxNlDPzA.wEQuOGFylbet0iPTaHiHSO10qSczq.W" # This is hash for 'abc12345'
+cookie:
+  expiry_days: 30
+  key: "some_random_signature_key"
+  name: "seo_tool_cookie"
+preauthorized:
+  emails: []
+
